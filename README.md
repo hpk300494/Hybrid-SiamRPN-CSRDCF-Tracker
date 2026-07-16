@@ -1,2 +1,2 @@
 # Hybrid-SiamRPN-CSRDCF-Tracker
-Master's dissertation implementation on methodology-aligned hybrid visual object tracking using Siamese networks and correlation filters.
+Hybrid visual object tracking framework combining Siamese networks and correlation-filter refinement with adaptive fusion and OTB benchmark evaluation.
