@@ -1,0 +1,12 @@
+numpy>=1.21
+opencv-python>=4.8
+torch>=2.0
+torchvision>=0.15
+matplotlib>=3.7
+pandas>=2.0
+scipy>=1.10
+tqdm>=4.65
+Pillow>=9.0
+jupyter>=1.0
+notebook>=7.0
+ipykernel>=6.25
