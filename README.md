@@ -1,229 +1,217 @@
-# Hybrid SiamRPN–CSRDCF Tracker
+# Hybrid-SiamRPN-CSRDCF-Tracker
 
-**Master's Dissertation Implementation**
+A hybrid visual object tracking framework that combines a pretrained SiamRPN tracker with a CSRDCF-style correlation filter using learned adaptive fusion weights. The framework dynamically adjusts tracker contributions on a per-sequence basis through supervised machine learning to improve overall tracking robustness.
 
-This repository contains the implementation developed as part of my MSc Data Science dissertation at **Liverpool John Moores University**.
+This repository accompanies the Master's dissertation:
 
-The project investigates whether combining a deep learning-based Siamese tracker with a correlation filter tracker can improve visual object tracking performance through a methodology-aligned hybrid fusion framework.
-
----
-
-# Overview
-
-Visual object tracking remains challenging under occlusion, appearance variation, scale changes, illumination changes, and fast motion.
-
-Deep learning trackers such as **DaSiamRPN** provide robust semantic representations but can occasionally drift under difficult conditions.
-
-Correlation filter trackers such as **CSRDCF** offer stable short-term localization and efficient online adaptation.
-
-This dissertation proposes a **Learned Weighted Fusion** framework that combines the complementary strengths of both trackers.
-
-Rather than replacing existing trackers, the objective is to investigate whether adaptive fusion can improve tracking robustness while maintaining high localization accuracy.
+**Hybrid SiamRPN–CSRDCF Tracker for Robust Visual Object Tracking**
 
 ---
 
-# Framework
+## Overview
 
-The proposed pipeline consists of
+Visual object tracking remains challenging under occlusion, illumination variation, motion blur, scale variation, and background clutter. While Siamese-network trackers provide strong semantic representations, correlation-filter trackers remain computationally efficient and robust in certain scenarios.
 
-```
-Video Frames
-      │
-      ▼
-+------------------+
-|  DaSiamRPN       |
-+------------------+
-      │
-      ▼
-Bounding Box 1
+This work proposes a learned weighted fusion framework that combines:
 
-Video Frames
-      │
-      ▼
-+------------------+
-|     CSRDCF       |
-+------------------+
-      │
-      ▼
-Bounding Box 2
+- Pretrained DaSiamRPN (Siamese tracker)
+- CSRDCF-style CSRT tracker
+- Machine-learning-based adaptive fusion
+- Automatic model selection using Gradient Boosting
 
-             │
-             ▼
-+----------------------------+
-| Learned Weighted Fusion    |
-+----------------------------+
-             │
-             ▼
- Final Bounding Box
-```
-
-The fusion model combines the predictions from both trackers using learned confidence weights to generate the final object location.
+The framework predicts the optimal contribution of each tracker for every sequence and produces improved tracking performance over individual trackers.
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```
-Hybrid-SiamRPN-CSRDCF-Tracker/
-
-│
-├── notebooks/
-│   ├── Fusion_Framework.ipynb
-│   ├── Tracker_Comparison.ipynb
-│   ├── Siamese_Comparison.ipynb
-│   └── Evaluation.ipynb
-│
-├── figures/
-│
-├── tables/
-│
-├── results/
+Hybrid-SiamRPN-CSRDCF-Tracker
 │
 ├── README.md
+├── requirements.txt
+├── CITATION.cff
 │
-└── requirements.txt
+├── notebooks
+│   ├── 01_Hybrid_SiamRPN_CSRDCF_Framework.ipynb
+│   ├── 02_Baseline_Tracker_Comparison.ipynb
+│   └── 03_Siamese_Tracker_Comparison.ipynb
+│
+├── figures
+│   ├── baseline_success_curve.png
+│   ├── baseline_success_ranking.png
+│   ├── baseline_precision_curve.png
+│   ├── baseline_precision_ranking.png
+│   ├── fusion_success_curve.png
+│   ├── fusion_precision_curve.png
+│   ├── siamese_success_curve.png
+│   ├── siamese_success_ranking.png
+│   ├── siamese_precision_curve.png
+│   └── siamese_precision_ranking.png
+│
+├── results
+│   ├── baseline_tracker_comparison.png
+│   ├── fusion_tracker_summary.png
+│   ├── fusion_model_selection.png
+│   ├── fusion_improvement_summary.png
+│   ├── siamese_tracker_evaluation.png
+│   └── siamese_fusion_improvement_summary.png
+│
+├── tables
+│   ├── baseline_tracker_comparison.numbers
+│   ├── baseline_tracker_per_sequence.numbers
+│   ├── fusion_tracker_comparison.numbers
+│   ├── fusion_tracker_per_sequence_results.numbers
+│   ├── fusion_improvement_summary.numbers
+│   ├── siamese_tracker_comparison.numbers
+│   ├── siamese_tracker_sequence_results.numbers
+│   └── siamese_fusion_improvement_summary.numbers
+│
+└── docs
+    └── tracker_availability_summary.png
 ```
 
 ---
 
-# Evaluation Dataset
+## Methodology
 
-Experiments were conducted using representative sequences from the **OTB2013** benchmark.
+The proposed framework consists of four stages:
 
-Sequences evaluated include:
+1. Execute the pretrained DaSiamRPN tracker.
+2. Execute the CSRDCF-style CSRT tracker.
+3. Extract sequence-level tracking statistics.
+4. Predict adaptive fusion weights using supervised machine learning.
+
+Three regression models were evaluated:
+
+- Gradient Boosting
+- Random Forest
+- Extra Trees
+
+Gradient Boosting achieved the highest overall fusion performance and was selected for the final framework.
+
+---
+
+## Dataset
+
+Experiments were conducted using sequences from the **OTB2013 benchmark**.
+
+Example sequences include:
 
 - Basketball
 - Bolt
 - Boy
 - Car4
 
-The experiments were performed using a controlled evaluation protocol with a maximum of 100 frames per sequence.
+Performance is evaluated using:
 
----
-
-# Evaluation Metrics
-
-Performance is evaluated using the standard OTB metrics:
-
-- Success Plot (IoU)
 - Success AUC
-- Precision Plot
-- Precision@20 pixels
+- Precision @20 pixels
 
 ---
 
-# Experimental Results
+## Experimental Results
 
-## Comparison with Component Trackers
+### Proposed Hybrid Fusion
 
 | Tracker | Success AUC | Precision@20 |
-|----------|------------:|-------------:|
-| Learned Weighted Fusion | **0.765** | **0.997** |
+|---------|------------:|-------------:|
+| Learned Weighted Fusion | **0.794** | **1.000** |
+| Late-Fusion Selector | 0.765 | 0.997 |
 | Pretrained DaSiamRPN | 0.749 | 0.990 |
-| CSRDCF | 0.738 | 0.995 |
+| CSRDCF-style CSRT | 0.738 | 0.995 |
 
-The proposed fusion framework improved upon both individual component trackers under the same evaluation protocol.
-
----
-
-## Comparison with Other Siamese Trackers
-
-| Tracker | Success AUC | Precision@20 |
-|----------|------------:|-------------:|
-| SiamRPN++ | **0.782** | **1.000** |
-| Learned Weighted Fusion | 0.765 | 0.997 |
-| DaSiamRPN | 0.749 | 0.990 |
-| SiamFC | 0.625 | 0.788 |
-
-The proposed framework improves over DaSiamRPN and SiamFC but does not outperform the newer SiamRPN++ tracker.
+The learned weighted fusion framework achieved the highest Success AUC while maintaining perfect precision.
 
 ---
 
-# Key Findings
+## Baseline Tracker Comparison
 
-- Adaptive fusion successfully combines complementary tracking paradigms.
-- The proposed framework consistently improves upon DaSiamRPN under the evaluated protocol.
-- The framework also improves over CSRDCF.
-- SiamRPN++ remains the strongest tracker among those evaluated.
-- Results demonstrate that methodology-aligned tracker fusion is a viable approach for improving visual object tracking.
+The repository also compares conventional OpenCV correlation-filter trackers:
 
----
+- CSRT
+- KCF
+- MOSSE
 
-# Limitations
-
-This repository represents the implementation used in a Master's dissertation and therefore has several limitations.
-
-- Evaluation performed on four representative OTB2013 sequences.
-- Maximum of 100 frames evaluated per sequence.
-- Pretrained Siamese trackers were used.
-- The work focuses on methodology validation rather than state-of-the-art benchmarking.
-
-Future work includes evaluation on:
-
-- Full OTB100
-- LaSOT
-- GOT-10k
-- TrackingNet
-- UAV123
-
-and integration with modern transformer-based trackers.
+Performance rankings and per-sequence results are provided in the `results/` and `tables/` directories.
 
 ---
 
-# Requirements
+## Siamese Tracker Comparison
 
-Python 3.10+
+The repository additionally evaluates multiple Siamese trackers:
 
-Major libraries include
+- SiamFC
+- SiamRPN++
+- Pretrained DaSiamRPN
+- Learned Weighted Fusion
 
-```
-numpy
-opencv-python
-torch
-torchvision
-matplotlib
-pandas
-scipy
-tqdm
+These experiments demonstrate the effectiveness of adaptive fusion relative to standalone Siamese trackers.
+
+---
+
+## Running the Project
+
+Clone the repository:
+
+```bash
+git clone https://github.com/<username>/Hybrid-SiamRPN-CSRDCF-Tracker.git
+cd Hybrid-SiamRPN-CSRDCF-Tracker
 ```
 
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Execute notebooks in order:
+
+1. `01_Hybrid_SiamRPN_CSRDCF_Framework.ipynb`
+2. `02_Baseline_Tracker_Comparison.ipynb`
+3. `03_Siamese_Tracker_Comparison.ipynb`
+
 ---
 
-# Citation
+## Results
 
-If you find this repository useful, please cite the associated Master's dissertation.
+The repository contains:
+
+- publication-quality figures
+- formatted tables
+- model-selection results
+- per-sequence evaluations
+- comparative tracker analysis
+
+These results support the findings reported in the accompanying dissertation.
+
+---
+
+## Citation
+
+If you use this repository in your research, please cite:
 
 ```
 Hanaa Parvez Khan.
-
-Methodology-Aligned Hybrid Visual Object Tracking Using Siamese Networks and Correlation Filters.
-
-MSc Data Science
-
-Liverpool John Moores University
-
-2024
+Hybrid SiamRPN–CSRDCF Tracker for Robust Visual Object Tracking.
+Master's Dissertation,
+Liverpool John Moores University.
+2024.
 ```
+
+Additional citation information is available in `CITATION.cff`.
 
 ---
 
-# Author
+## Author
 
 **Hanaa Parvez Khan**
 
-MSc Data Science (Liverpool John Moores University)
-
-Research Interests
-
-- Visual Object Tracking
-- Computer Vision
-- Deep Learning
-- Explainable AI
-- Machine Learning Systems
-- Edge AI
+M.Sc. Data Science  
+Liverpool John Moores University
 
 ---
 
-# License
+## License
 
 This repository is provided for academic and research purposes.
