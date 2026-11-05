@@ -112,7 +112,7 @@ Performance is evaluated using:
 ---
 
 ## Experimental Results
-
+**Naming in figures, notebooks and spreadsheets.** Some outputs use earlier labels. "Pretrained SiamRPN" = the pretrained DaSiamRPN tracker; "CSRDCF-style CSRT" = CSRT (OpenCV); "Late-Fusion Selector" = Safety-Selected Fusion (SSF) in the paper. "SiamRPN++" always refers to the separate SiamRPN++ (ResNet-50) baseline.
 All trackers were run directly under the same protocol (same sequences, same 100-frame cap, same metric code). Results are not taken from published figures.
 
 ### Aggregate results (four-sequence pilot subset)
